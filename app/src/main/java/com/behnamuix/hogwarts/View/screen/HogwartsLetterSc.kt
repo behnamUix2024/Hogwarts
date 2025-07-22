@@ -128,46 +128,56 @@ fun HogwartsLetterContent() {
                 )
                 val englishOnlyRegex = Regex("^[\\p{ASCII}]*$")
                 //------------------------------------------------
-                OutlinedTextField(
-                    singleLine = true,
-                    maxLines = 1,
-                    textStyle = TextStyle(
+                Row(){
 
-                        fontFamily = VazirFont,
-                        fontSize = 14.sp,
+                    TextField(
+                        singleLine = true,
+                        maxLines = 1,
+                        textStyle = TextStyle(
 
-                        ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-
-                        .padding(8.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                    ),
-                    enabled = tf_status,
-                    placeholder = {
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            text = "نام خود را به انگلیسی وارد کنید",
                             fontFamily = VazirFont,
-                            fontSize = 12.sp,
-                            textAlign = TextAlign.End
+                            fontSize = 14.sp,
 
-                        )
-                    },
-                    value = name,
-                    onValueChange = {
-                        if (it.length <= 16) {
-                            if (it.matches(englishOnlyRegex)) {
-                                name = it
+                            ),
+                        modifier = Modifier
+                            .weight(0.5f)
+
+                            .padding(8.dp),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        enabled = tf_status,
+                        label = {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                text = "نام خود را به انگلیسی وارد کنید",
+                                fontFamily = VazirFont,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.End
+
+                            )
+                        },
+                        value = name,
+                        onValueChange = {
+                            if (it.length <= 16) {
+                                if (it.matches(englishOnlyRegex)) {
+                                    name = it
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.img_owl),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .weight(0.2f)
+                            .size(80.dp)
+                    )
+                }
                 Text(
 
                     color = Color(0xFFF44336),
@@ -286,7 +296,7 @@ fun MyText3(title: String, size: Int) {
     Text(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(2.dp),
+            .padding(4.dp),
         text = title,
         fontFamily = VazirFontBold,
         style = TextStyle(textDirection = TextDirection.Rtl),
