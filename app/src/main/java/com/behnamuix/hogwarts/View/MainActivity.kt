@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
             MvpComposeTheme {
 
 
-                Navigator(HogwartsTestSc)
+                Navigator(MainSc)
 
 
             }
