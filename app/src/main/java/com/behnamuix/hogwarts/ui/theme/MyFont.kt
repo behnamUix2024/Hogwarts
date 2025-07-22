@@ -16,3 +16,9 @@ val VazirFontBold= FontFamily(
 val HarryFont= FontFamily(
     Font(R.font.harry_p)
 )
+val Title= FontFamily(
+    Font(R.font.title_font)
+)
+val Body= FontFamily(
+    Font(R.font.body2)
+)

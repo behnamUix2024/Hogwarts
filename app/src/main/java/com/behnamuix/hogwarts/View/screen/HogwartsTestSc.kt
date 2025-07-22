@@ -187,6 +187,7 @@ fun HogwartsTestContent() {
     ) {
         BackButton(navigator)
 
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -254,7 +255,46 @@ fun BackButton(navigator: Any) {
                 tint = Color.White
             )
         }
+        Box(
+            modifier = Modifier
+                .padding(end = 22.dp)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Row {
+                IconButton(
+                    modifier = Modifier
+                        .padding(top = 60.dp)
+                        .size(36.dp),
+                    onClick = { navigator.push(HogwartsLetterSc) }
+                ) {
+                    Icon(
+                        modifier = Modifier.fillMaxSize(),
+                        painter = painterResource(id = R.drawable.message),
+                        contentDescription = "بازگشت",
+                        tint = Color(0xFFFFC500)
+                    )
+                }
+                Spacer(Modifier.width(10.dp))
+                IconButton(
+                    modifier = Modifier
+                        .padding(top = 60.dp)
+                        .size(36.dp),
+                    onClick = { navigator.push(GroupDetailSc) }
+                ) {
+                    Icon(
+                        modifier = Modifier.fillMaxSize(),
+                        painter = painterResource(id = R.drawable.info_square),
+                        contentDescription = "بازگشت",
+                        tint = Color.White
+                    )
+                }
+            }
+
+        }
+
     }
+
 }
 
 @Composable

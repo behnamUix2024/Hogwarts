@@ -17,3 +17,17 @@ object HogwartsTestSc: Screen{
     }
 
 }
+object GroupDetailSc: Screen{
+    @Composable
+    override fun Content() {
+        GroupDetailContent()
+    }
+
+}
+object HogwartsLetterSc: Screen{
+    @Composable
+    override fun Content() {
+        HogwartsLetterContent()
+    }
+
+}
