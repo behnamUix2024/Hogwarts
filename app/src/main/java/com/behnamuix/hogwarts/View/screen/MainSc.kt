@@ -53,7 +53,14 @@ import com.behnamuix.hogwarts.R
 fun MainContent() {
     var ctx = LocalContext.current
     var audio = SongPlayer(ctx)
-    audio.play()
+    LaunchedEffect(ctx) {
+        if(!audio.isPlaying()){
+
+            audio.play()
+        }else{
+            audio.stop()
+        }
+    }
     Toast.makeText(ctx, "ساخته شده با ❤ توسط Arcadroid", Toast.LENGTH_LONG).show()
     Column(
         modifier = Modifier
@@ -130,7 +137,7 @@ fun MainContent() {
                                         .size(66.dp)
                                         .clip(RoundedCornerShape(18.dp)),
                                     //painter = painterResource(R.drawable.img_profile),
-                                    painter = rememberAsyncImagePainter("https://static1.cbrimages.com/wordpress/wp-content/uploads/2022/04/Dumbledore-2.jpg"),
+                                    painter = rememberAsyncImagePainter("https://upload.wikimedia.org/wikipedia/en/e/e8/Dumbledore_-_Prisoner_of_Azkaban.jpg"),
                                     contentDescription = "",
                                     contentScale = ContentScale.Crop
                                 )
@@ -203,4 +210,5 @@ fun AnimationHat() {
         contentDescription = "",
 
         )
+
 }

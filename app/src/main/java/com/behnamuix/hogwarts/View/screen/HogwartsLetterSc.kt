@@ -207,7 +207,7 @@ fun HogwartsLetterContent() {
                         modifier = Modifier
                             .alpha(alpha)
                             .width(180.dp)
-                            .height(520.dp)
+                            .height(510.dp)
                     ) {
                         Text(
                             text = "Dear " + name.capitalize() + " ,",
