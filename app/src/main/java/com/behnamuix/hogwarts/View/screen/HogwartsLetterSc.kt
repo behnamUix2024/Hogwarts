@@ -131,6 +131,7 @@ fun HogwartsLetterContent() {
                 Row(){
 
                     TextField(
+
                         singleLine = true,
                         maxLines = 1,
                         textStyle = TextStyle(
@@ -145,9 +146,12 @@ fun HogwartsLetterContent() {
                             .padding(8.dp),
                         shape = RoundedCornerShape(18.dp),
                         colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.White,
+                            focusedContainerColor = Color.White,
                             focusedTextColor = Color.Black,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
+
                         ),
                         enabled = tf_status,
                         label = {

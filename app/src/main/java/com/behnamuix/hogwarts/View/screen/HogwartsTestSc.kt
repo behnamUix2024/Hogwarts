@@ -1,9 +1,9 @@
 package com.behnamuix.hogwarts.View.screen
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,15 +17,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,10 +50,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.rememberAsyncImagePainter
 import com.behnamuix.avacast.ui.theme.VazirFont
 import com.behnamuix.avacast.ui.theme.VazirFontBold
-import com.behnamuix.hogwarts.Harrypoter.groups.Gryffindor
-import com.behnamuix.hogwarts.Harrypoter.groups.Hufflepuff
-import com.behnamuix.hogwarts.Harrypoter.groups.Ravenclaw
-import com.behnamuix.hogwarts.Harrypoter.groups.Slytherin
 import com.behnamuix.hogwarts.R
 
 data class HouseProgress(
@@ -70,7 +68,6 @@ data class QuizQuestion(
 @Composable
 fun HogwartsTestContent() {
     val ctx = LocalContext.current
-
     var progressState by remember {
         mutableStateOf(
             HouseProgress(
@@ -84,6 +81,9 @@ fun HogwartsTestContent() {
 
     var showCompletionToast by remember { mutableStateOf(false) }
     var completedHouse by remember { mutableStateOf("") }
+
+    // اینجا از mutableStateMapOf برای ذخیره پاسخ‌های انتخاب شده استفاده می‌کنیم
+    val selectedAnswers = remember { mutableStateMapOf<Int, Int?>() }
 
     fun checkHouseCompletion(progress: Float, houseName: String) {
         if (progress >= 0.999f && !showCompletionToast) {
@@ -172,8 +172,28 @@ fun HogwartsTestContent() {
                 "زرد و سیاه"
             )
         )
-
     )
+
+    // تابع مدیریت انتخاب پاسخ
+    fun onAnswerSelected(questionId: Int, answerIndex: Int) {
+        selectedAnswers[questionId] = answerIndex
+
+        // به‌روزرسانی پیشرفت خانه‌ها
+        progressState = when (answerIndex) {
+            0 -> progressState.copy(gryffindor = progressState.gryffindor + 0.1f)
+            1 -> progressState.copy(slytherin = progressState.slytherin + 0.1f)
+            2 -> progressState.copy(ravenclaw = progressState.ravenclaw + 0.1f)
+            3 -> progressState.copy(hufflepuff = progressState.hufflepuff + 0.1f)
+            else -> progressState
+        }
+
+        // بررسی تکمیل خانه
+        checkHouseCompletion(progressState.gryffindor, "گریفیندور")
+        checkHouseCompletion(progressState.slytherin, "اسلیترین")
+        checkHouseCompletion(progressState.ravenclaw, "ریونکلاو")
+        checkHouseCompletion(progressState.hufflepuff, "هافلپاف")
+    }
+
     val navigator = LocalNavigator.currentOrThrow
 
     Column(
@@ -186,7 +206,6 @@ fun HogwartsTestContent() {
             .fillMaxSize()
     ) {
         BackButton(navigator)
-
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -203,30 +222,9 @@ fun HogwartsTestContent() {
 
         QuizQuestionsList(
             questions = questions,
-            onAnswerSelected = { houseIndex ->
-                progressState = when (houseIndex) {
-                    0 -> {
-                        val newProgress = (progressState.gryffindor + 0.1429f).coerceAtMost(1f)
-                        checkHouseCompletion(newProgress, Gryffindor().getHouseName())
-                        progressState.copy(gryffindor = newProgress)
-                    }
-                    1 -> {
-                        val newProgress = (progressState.slytherin + 0.1429f).coerceAtMost(1f)
-                        checkHouseCompletion(newProgress, Slytherin().getHouseName())
-                        progressState.copy(slytherin = newProgress)
-                    }
-                    2 -> {
-                        val newProgress = (progressState.ravenclaw + 0.1429f).coerceAtMost(1f)
-                        checkHouseCompletion(newProgress, Ravenclaw().getHouseName())
-                        progressState.copy(ravenclaw = newProgress)
-                    }
-                    3 -> {
-                        val newProgress = (progressState.hufflepuff + 0.1429f).coerceAtMost(1f)
-                        checkHouseCompletion(newProgress, Hufflepuff().getHouseName())
-                        progressState.copy(hufflepuff = newProgress)
-                    }
-                    else -> progressState
-                }
+            selectedAnswers = selectedAnswers,
+            onAnswerSelected = { questionId, answerIndex ->
+                onAnswerSelected(questionId, answerIndex)
             }
         )
     }
@@ -290,11 +288,8 @@ fun BackButton(navigator: Any) {
                     )
                 }
             }
-
         }
-
     }
-
 }
 
 @Composable
@@ -374,14 +369,18 @@ fun HouseProgressItem(
 @Composable
 fun QuizQuestionsList(
     questions: List<QuizQuestion>,
-    onAnswerSelected: (Int) -> Unit
+    selectedAnswers: Map<Int, Int?>,
+    onAnswerSelected: (Int, Int) -> Unit
 ) {
     LazyColumn {
         itemsIndexed(questions) { index, question ->
             QuizCard(
                 questionNumber = index + 1,
                 question = question,
-                onAnswerSelected = onAnswerSelected
+                selectedAnswer = selectedAnswers[question.id],
+                onAnswerSelected = { answerIndex ->
+                    onAnswerSelected(question.id, answerIndex)
+                }
             )
         }
     }
@@ -391,74 +390,88 @@ fun QuizQuestionsList(
 fun QuizCard(
     questionNumber: Int,
     question: QuizQuestion,
+    selectedAnswer: Int?,
     onAnswerSelected: (Int) -> Unit
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0x75000000)),
         modifier = Modifier
-            .padding(vertical = 40.dp)
-            .fillMaxWidth(0.7f)
-            .height(450.dp),
+            .padding(vertical = 16.dp)
+            .fillMaxWidth(0.9f),
         shape = RoundedCornerShape(20.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            MyText(
-                title = questionNumber.toString(),
-                size = 20,
-                isTitle = true
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "سوال $questionNumber",
+                modifier = Modifier.padding(8.dp),
+                fontFamily = VazirFontBold,
+                style = TextStyle(textDirection = TextDirection.Rtl),
+                fontSize = 20.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
 
             Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
                 text = question.text,
+                modifier = Modifier.padding(8.dp),
                 fontFamily = VazirFontBold,
                 style = TextStyle(textDirection = TextDirection.Rtl),
                 fontSize = 18.sp,
                 color = Color.White,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium
+                textAlign = TextAlign.Center
             )
 
-            Column(
-                modifier = Modifier.padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                question.answers.forEachIndexed { index, answer ->
-                    AnswerButton(
-                        text = answer,
-                        onClick = { onAnswerSelected(index) }
-                    )
-                }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            question.answers.forEachIndexed { index, answer ->
+                AnswerButton(
+                    text = answer,
+                    isSelected = selectedAnswer == index,
+                    onClick = { onAnswerSelected(index) }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
 }
 
 @Composable
-fun AnswerButton(text: String, onClick: () -> Unit) {
-    OutlinedButton(
+fun AnswerButton(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
         shape = RoundedCornerShape(12.dp),
-        onClick = onClick
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor =  Color.White
+        ),
+        border = BorderStroke(
+            width = 2.dp,
+            color = if (isSelected) Color(0xFFFFD700) else Color.White.copy(alpha = 0.5f)
+        ),
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .padding(4.dp),
             text = text,
-            fontFamily = VazirFont,
-            style = TextStyle(textDirection = TextDirection.Rtl),
-            fontSize = 14.sp,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Medium
+            fontFamily = if (isSelected) VazirFontBold else VazirFont,
+            fontSize = 16.sp,
+            modifier = Modifier.padding(8.dp)
         )
     }
 }
 
 @Composable
-fun MyText(title: String, size: Int, isTitle: Boolean) {
+fun MyText(
+    title: String,
+    size: Int,
+    isTitle: Boolean
+) {
     Text(
         modifier = Modifier
             .fillMaxWidth()
